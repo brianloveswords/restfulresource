@@ -1,0 +1,5 @@
+name = FWK OG
+description = Custom code for this site related to organic groups module.
+package = FWK
+core = 6.x
+dependencies[] = og
