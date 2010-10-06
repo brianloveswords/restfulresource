@@ -21,6 +21,14 @@ class RestfulResource {
     self::$resources[$resource] = $this;
   }
 
+  public function removeDefaultActions() {
+    $this->post->removeAction('create');
+    $this->get->removeAction('read');
+    $this->put->removeAction('update');
+    $this->delete->removeAction('delete');
+    return $this;
+  }
+  
   /**
    * Generates a drupal menu (routes) for this resource.
    *

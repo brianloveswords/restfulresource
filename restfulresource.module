@@ -1,6 +1,15 @@
 <?php
-
-function restfulresource_menu() {
-  return Restfulresource::generateMenu();
+require_once 'restfulresource_class.inc';
+function restfulresource_init() {
+  $r = new RestfulResource('resource', 'resources', 'restfulresource');
+  $r->removeDefaultActions();
+  $r->get->addAction('summary', 'restfulresource_summary');
 }
 
+function restfulresource_menu() {
+  return RestfulResource::generateMenu();
+}
+
+function restfulresource_summary() {
+  return 'lookin good!';
+}
