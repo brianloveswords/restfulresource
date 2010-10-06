@@ -21,10 +21,10 @@ class RestfulResource {
   }
 
   public function removeDefaultActions() {
-    $this->post->removeAction($resource);
-    $this->get->removeAction($resource);
-    $this->put->removeAction($resource);
-    $this->delete->removeAction($resource);
+    $this->post->removeAction($this->resource);
+    $this->get->removeAction($this->resource);
+    $this->put->removeAction($this->resource);
+    $this->delete->removeAction($this->resource);
     return $this;
   }
   
@@ -71,18 +71,16 @@ class RestfulResource {
    *   the extra arguments passed when calling the resource
    */
   public static function route( $resource, $path_args ) {
+    $http_method = strtolower($_SERVER['REQUEST_METHOD']);
     $rr = self::$resources[$resource];
-
-    switch ($_SERVER['REQUEST_METHOD']) {
-      case "POST":
-        break;
-      case "GET":
-        break;
-      case "PUT":
-        break;
-      case "DELETE":
-        break;
-    }
+    $pathparts = self::parsePath( $path_args, $rr, $http_method );
+    $action = $pathparts['action'];
+    $id = $pathparts['id'];
+    $type = $pathparts['method'];
+    $callback = $rr->$http_method->actions[$action];
+    $result = call_user_func( $callback, $id );
+    
+    return $result;
   }
   
   /**
@@ -90,18 +88,23 @@ class RestfulResource {
    *
    * @param  path_args
    *   what gets passed into route from the menu call.
+   * @param  resource
+   *   the resource object
+   * @param  http_method
+   *   the method object from the resource for the type of request
    */
-  public static function parsePath( $path_args, $resource, $method ) {
-    $action = $resource;
+  public static function parsePath( $path_args, $resource, $http_method) {
+    $action = $resource->resource;
     $id = null;
     $type = null;
+    $method = $resource->$http_method;
     
     foreach($path_args as $arg) {
       $info = pathinfo($arg);
       // if there is an extension, stop. It's either an ID or action
       if ($info['extension']) {
         $type = $info['extension'];
-        if (isset($method->actions[$info['filename']])) {
+        if (isset( $method->actions[$info['filename']] )) {
           $action = $info['filename'];
         }
         else {

@@ -63,27 +63,27 @@ class RestfulResourceTest extends UnitTestCase {
     $action_on_one = array('10100', 'summary.txt');
     $get_named_id = array('bogus.txt');
 
-    $response = RestfulResource::parsePath($default_read_all, $rr->resource, $rr->get);
+    $response = RestfulResource::parsePath($default_read_all, $rr, 'get');
     $this->assertEqual($response['action'], 'bagels');
     $this->assertEqual($response['id'], null);
     $this->assertEqual($response['type'], 'txt');
     
-    $response = RestfulResource::parsePath($default_read_one, $rr->resource,  $rr->get);
+    $response = RestfulResource::parsePath($default_read_one, $rr,  'get');
     $this->assertEqual($response['action'], 'bagels');
     $this->assertEqual($response['id'], '1');
     $this->assertEqual($response['type'], 'json');
     
-    $response = RestfulResource::parsePath($action_on_all, $rr->resource,  $rr->get);
+    $response = RestfulResource::parsePath($action_on_all, $rr,  'get');
     $this->assertEqual($response['action'], 'summary');
     $this->assertEqual($response['id'], null);
     $this->assertEqual($response['type'], 'txt');
     
-    $response = RestfulResource::parsePath($action_on_one, $rr->resource,  $rr->get);
+    $response = RestfulResource::parsePath($action_on_one, $rr,  'get');
     $this->assertEqual($response['action'], 'summary');
     $this->assertEqual($response['id'], '10100');
     $this->assertEqual($response['type'], 'txt');
     
-    $response = RestfulResource::parsePath($get_named_id, $rr->resource,  $rr->get);
+    $response = RestfulResource::parsePath($get_named_id, $rr,  'get');
     $this->assertEqual($response['action'], 'bagels');
     $this->assertEqual($response['id'], 'bogus');
     $this->assertEqual($response['type'], 'txt');
