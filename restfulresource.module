@@ -1,7 +1,8 @@
 <?php
 require_once 'restfulresource_class.inc';
+
 function restfulresource_init() {
-  $r = new RestfulResource('resource', 'resources', 'restfulresource');
+  $r = new RestfulResource('restfulresources', 'restfulresource');
   $r->removeDefaultActions();
   $r->get->addAction('summary', 'restfulresource_summary');
 }
@@ -12,4 +13,10 @@ function restfulresource_menu() {
 
 function restfulresource_summary() {
   return 'lookin good!';
+}
+
+function restfulresource_router( $resource ) {
+  $args = func_get_args();
+  array_shift($args);
+  return RestfulResource::route( $resource, $args );
 }
