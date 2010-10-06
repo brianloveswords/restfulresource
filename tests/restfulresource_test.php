@@ -23,4 +23,10 @@ class RestfulResourceTest extends UnitTestCase {
     $this->assertNotNull($rr->put->actions['update']);
     $this->assertNotNull($rr->delete->actions['delete']);
   }
+  
+  function testShouldRemoveDefaultAction() {
+    $rr = new RestfulResource('test', 'test');
+    $rr->post->removeAction('create');
+    $this->assertNull($rr->post->actions['create']);
+  }
 }

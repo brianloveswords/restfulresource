@@ -20,6 +20,11 @@ class HTTPMethod {
     $this->actions[$action] = $callback;
     return $this;
   }
+
+  public function removeAction( $action ) {
+    unset($this->actions[$action]);
+    return $this;
+  }
 }
 
 class HTTPPost extends HTTPMethod{
