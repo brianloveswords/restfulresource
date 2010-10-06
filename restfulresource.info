@@ -1,5 +1,3 @@
-name = FWK OG
-description = Custom code for this site related to organic groups module.
-package = FWK
+name = Restful Resource
+description = Interface for exposing resources RESTfully in a way that ActiveResource (3.0.0) can consume.
 core = 6.x
-dependencies[] = og
