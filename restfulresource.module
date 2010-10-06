@@ -1,0 +1,6 @@
+<?php
+
+function restfulresource_menu() {
+  return Restfulresource::generateMenu();
+}
+

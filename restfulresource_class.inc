@@ -2,10 +2,11 @@
 class RestfulResource {
   public static $resources;
   
-  public function __construct( $resource, $resource_plural, $module ) {
+  public function __construct( $resource, $resource_plural, $module, $prefix = '' ) {
     $this->module = $module;
     $this->resource = $resource;
     $this->resource_plural = $resource_plural;
+    $this->prefix = $prefix;
     
     $this->get = new HTTPGet;
     $this->post = new HTTPPost;
@@ -16,6 +17,8 @@ class RestfulResource {
     $this->get->addAction('read', sprintf("%s_rr_read", $module));
     $this->put->addAction('update', sprintf("%s_rr_update", $module));
     $this->delete->addAction('delete', sprintf("%s_rr_delete", $module));
+    
+    self::$resources[$resource] = $this;
   }
 
   /**
@@ -26,25 +29,37 @@ class RestfulResource {
    * @return 
    *   array of routes that can be returned from hook_menu
    */
-  public function generateMenu( $prefix = '' ) {
-    $prefix = trim( $prefix, '/' );
-    $arguments_offset = substr_count($prefix, '/');
-    $prefix .= strlen($prefix) > 0 ? '/' : '';
+  public static function generateMenu( ) {
+    $routes = array();
+    foreach (self::$resources as $r) {
+      $prefix = trim( $r->prefix, '/' );
+      $arguments_offset = substr_count($prefix, '/');
+      $prefix .= strlen($prefix) > 0 ? '/' : '';
     
-    $template = array(
-      'description' => 'API router',
-      'page callback' => 'restfulresource_router',
-      'page arguments' => array($this->resource),
-      'access callback' => TRUE,
-      'type' => MENU_CALLBACK,
-    );
-    $routes = array(
-      sprintf("%s%s.json", $prefix, $this->resource) => $template,
-      sprintf("%s%s.txt", $prefix, $this->resource) => $template,
-      sprintf("%s%s/%%", $prefix, $this->resource_plural) => $template,
-      sprintf("%s%s/%%/%%", $prefix, $this->resource_plural) => $template,
-    );
+      $template = array(
+        'description' => 'API router',
+        'page callback' => 'restfulresource_router',
+        'page arguments' => array($r->resource),
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK,
+      );
+        
+      $routes[sprintf("%s%s.json", $prefix, $r->resource)] = $template;
+      $routes[sprintf("%s%s.txt", $prefix, $r->resource)] = $template;
+      $routes[sprintf("%s%s/%%", $prefix, $r->resource_plural)] = $template;
+    }    
     return $routes;
+  }
+
+  /**
+   * Routes a menu call to the proper method.
+   *
+   * @param  resource
+   *   the name of the resource
+   */
+  public static function route( $resource ) {
+    $path_args = func_get_args();
+    self::$resources[$resource];
   }
 }
 
