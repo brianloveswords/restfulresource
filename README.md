@@ -148,9 +148,9 @@ ActiveResource Conventions
 
 * The `errors` array should be formed like so:
     
-    errors[] = "Firstname can't be blank;
-    errors[] = "Email can't be blank;
-    errors[] = "Phone number can't be blank;
+      errors[] = "Firstname can't be blank;
+      errors[] = "Email can't be blank;
+      errors[] = "Phone number can't be blank;
   
   Active resource will automatically figure out those are validation errors on
   the `firstname`, `email` and `phone_number` fields.
