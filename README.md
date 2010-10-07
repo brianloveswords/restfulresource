@@ -39,15 +39,35 @@ In addtion to the free routes, `restfulresources_create` sets up action
 routing for the Create Read Update Delete actions, as well as HEAD method
 action for checking existence.
 
-In this case I want to add a custom action that responds to GET requests.
+In this case I want to add a custom 'summary' action that responds to GET
+requests and returns a short summary of a book.
 
     $resource = restfulresources_create( 'books', 'api/1.0' );
     $resource->get->addAction( 'summary', 'libary_rr_summary' );
 
 Now when a GET request is made to `http://my-site/api/1.0/books/summary.json`
 or `http://my-site/api/1.0/books/<id>/summary.json` (where ID is a unique book
-resource ID), a call will be made to `library_rr_summary` like this:
-`library_rr_summary( $_GET, $id )`.
+resource ID), a call will be made to `library_rr_summary` containing the GET
+data and the ID, if relevant:
     
+    library_rr_summary( $get_data, $id )
+    
+Now I can define the callback:
+    
+    function library_rr_summary( $data, $id ) {
+      $summary = library_get_book_summary( $id );
+      return array( 'book' => array( 'summary' => $summary ) );
+    }
+
+However there's a problem: this action has no meaning for the entire
+collection of books, and the route `http://my-site/api/1.0/books/summary.json`
+will hit this callback without an `$id`. This is a case where the action is
+unsupported for a specific context and specifying that requires a small modification:
+
+    function library_rr_summary( $data, $id ) {
+      if (empty( $id ) { return RestfulResource::UNSUPPORTED; }
+      $summary = library_get_book_summary( $id );
+      return array( 'book' => array( 'summary' => $summary ) );
+    }
 
 
