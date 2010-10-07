@@ -10,7 +10,7 @@ assumptions, but it also tries to be customizable.
 Installing
 ==========
 
-Check out this guy into your `/sites/all/modules directory`, head over to
+Check out this guy into your `/sites/all/modules` directory, head over to
 http://your-site/admin/build/modules and turn it on.
 
 
@@ -43,7 +43,7 @@ In this case I want to add a custom 'summary' action that responds to GET
 requests and returns a short summary of a book.
 
     $resource = restfulresources_create( 'books', 'api/1.0' );
-    $resource->get->addAction( 'summary', 'libary_rr_summary' );
+    $resource->get->addAction( 'summary' );
 
 Now when a GET request is made to `http://my-site/api/1.0/books/summary.json`
 or `http://my-site/api/1.0/books/<id>/summary.json` (where ID is a unique book
@@ -52,7 +52,21 @@ data and the ID, if relevant:
     
     library_rr_summary( $get_data, $id )
     
-Now I can define the callback:
+Note that the action router automatically looks for a callback called
+`library_rr_<actionname>`. I could have specified a different suffix for the
+callback by calling addAction like so:
+    
+    $resource->get->addAction('summary', 'brief')
+
+Which would have told the router to look for a callback named
+`library_rr_brief`. I could have also told the action router to make no
+assumptions about the callback name and let me specify the whole thing by
+doing this:
+
+    $resource->get->addAction('summary', 'library_api_brief_summary', true)
+
+Let's assume I'm happy with the way the router normally names things and
+proceed. Now I can define the callback:
     
     function library_rr_summary( $data, $id ) {
       $summary = library_get_book_summary( $id );
