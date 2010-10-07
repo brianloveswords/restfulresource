@@ -27,8 +27,9 @@ Example
 Let's say I want to expose a `books` resource to keep track of my books. I
 already have a `library` module that I'm using mostly for this purpose.
 
-In my `library_init` function, I call `restfulresources_create( 'books' )` and
-magically I have new routes at `http://my-site/books.txt`,
+In my `library_init` function, I call `restfulresources_create( 'books'
+)`. This magically magically creates new routes (but you still may have to
+clear your menu cache) at `http://my-site/books.txt`,
 `http://my-site/books.json` and `http://my-site/books/%`. Unless I'm writing
 an API server, I probably want to move those routes to api/books. To do this,
 call restfulresources_create with the optional prefix parameter like so:
@@ -131,4 +132,4 @@ actions, define these functions:
 Where `modulename` is the name of the module where you called
 `restfulresource_create` from. You can override the guessing of the action
 callbacks by calling the create method with the optional module parameter:
-`restfulresource_create( 'books', null, 'my_module' )`.
+`restfulresource_create( 'books', 'api/1.0', 'my_module' )`.
