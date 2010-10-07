@@ -1,5 +1,8 @@
 <?php
 class RestfulResource {
+  const UNAUTHORIZED = 'unauthorized';
+  const NOT_FOUND = 'not_found';
+  
   public static $resources;
   
   public function __construct( $resource, $module, $prefix = '' ) {
@@ -11,7 +14,7 @@ class RestfulResource {
     $this->post = new HTTPPost($this);
     $this->put = new HTTPPut($this);
     $this->delete = new HTTPDelete($this);
-  
+    
     $this->post->addAction($resource, sprintf("%s_rr_create", $module));
     $this->get->addAction($resource, sprintf("%s_rr_read", $module));
     $this->put->addAction($resource, sprintf("%s_rr_update", $module));
@@ -73,14 +76,50 @@ class RestfulResource {
   public static function route( $resource, $path_args ) {
     $http_method = strtolower($_SERVER['REQUEST_METHOD']);
     $rr = self::$resources[$resource];
+    
     $pathparts = self::parsePath( $path_args, $rr, $http_method );
     $action = $pathparts['action'];
     $id = $pathparts['id'];
-    $type = $pathparts['method'];
-    $callback = $rr->$http_method->actions[$action];
-    $result = call_user_func( $callback, $id );
+    $type = $pathparts['type'];
     
-    return $result;
+    $callback = $rr->$http_method->actions[$action];
+    
+    self::header( $type );
+    
+    // if the callback doesn't exit, execution stops immediately.
+    if (function_exists( $callback ) == false) {
+      HTTPResponse::badRequest();
+      // exits
+    }
+
+    $_PUT = self::decode( $type, file_get_contents('php://input') );
+    
+    $data = array(
+      'get' => $_GET,
+      'post' => $_POST ? $_POST : $_PUT, //activeresource puts posts in puts.
+      'put' => $_PUT,
+      'delete' => array(),
+    );
+
+    $result = call_user_func( $callback, $data[$http_method], $id );
+    if ($result === self::NOT_FOUND) {
+      HTTPResponse::notFound();
+      // exits
+    }
+    else if ($result === self::UNAUTHORIZED) {
+      HTTPResponse::unauthorized();
+      // exits
+    }
+    else if (isset( $result['errors'] )) {
+      HTTPResponse::unprocessable( self::encode ($type, $result) );
+      // exits
+    }
+    else if ( $type == 'post' ) {
+      HTTPResponse::created( $result );
+    }
+    else {
+      HTTPResponse::ok( self::encode($type, $result) );
+    }
   }
   
   /**
@@ -118,6 +157,69 @@ class RestfulResource {
     }
     return array('action' => $action, 'id' => $id, 'type' => $type);
   }
+
+  /**
+   * Methods for decoding different types of incoming requests.
+   *
+   * @param  type
+   *   the incoming type (txt or json currently)
+   * @param  data
+   *   the incoming data
+   * @return
+   *   decoded object as an array
+   */
+  private static function decode( $type, $data ) {
+    $result = $data;
+    switch ($type) {
+      case 'json':
+        $result = json_decode(file_get_contents('php://input'));
+        break;
+      case 'txt':
+        parse_str(file_get_contents('php://input'), $result);
+        break;
+    }
+    return (array)$result;
+  }
+
+  /**
+   * Methods for encoding responses
+   *
+   * @param  type
+   *   the incoming type (txt or json currently)
+   * @param  data
+   *   the incoming data
+   * @return
+   *   encoded object as a string
+   */
+  private static function encode( $type, $data ) {
+    $result = $data;
+    switch ($type) {
+      case 'json':
+        $result = json_encode($data);
+        break;
+      case 'txt':
+        $result = print_r($data, true);
+        break;
+    }
+    return (string)$result;
+  }
+
+  /**
+   * Set response header for type
+   *
+   * @param  type
+   *   the reponse type 
+   */
+  private static function header( $type ) {
+    switch ($type) {
+      case 'json':
+        drupal_set_header('Content-Type: text/javascript; charset=utf-8');
+        break;
+      case 'txt':
+        drupal_set_header('Content-Type: text/plain; charset=utf-8');
+        break;
+    }
+  }
 }
 
 class HTTPMethod {
@@ -133,8 +235,37 @@ class HTTPMethod {
     return $this;
   }
 }
-
 class HTTPPost extends HTTPMethod{}
 class HTTPGet extends HTTPMethod{}
 class HTTPPut extends HTTPMethod{}
 class HTTPDelete extends HTTPMethod{}
+
+class HTTPResponse {
+  public function badRequest() {
+    drupal_set_header('HTTP/1.1 400 Bad Request');
+    exit;
+  }
+  public function notFound() {
+    drupal_set_header('HTTP/1.1 404 Not Found');
+    exit;
+  }
+  public function ok( $body ) {
+    drupal_set_header('HTTP/1.1 200 OK');
+    print $body;
+    exit;
+  }
+  public function created( $location ) {
+    drupal_set_header('HTTP/1.1 201 Created');
+    drupal_set_header(sprintf('Location: %s/%d', $location));
+    exit;
+  }
+  public function unprocessable( $body ) {
+    drupal_set_header('HTTP/1.1 422 Unprocessable Entity');
+    print $body;
+    exit;
+  }
+  public function unauthorized() {
+    drupal_set_header('HTTP/1.1 401 Unauthorized');
+    exit;
+  }
+}
