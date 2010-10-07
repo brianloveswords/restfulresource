@@ -193,7 +193,7 @@ class RestfulResource {
    * @param  data
    *   the incoming data
    * @return
-   *   decoded object as an array
+   *   decoded object
    */
   private static function decode( $type, $data ) {
     $result = $data;
@@ -205,7 +205,7 @@ class RestfulResource {
         parse_str($data, $result);
         break;
     }
-    return (array)$result;
+    return (object)$result;
   }
 
   /**
