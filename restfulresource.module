@@ -5,7 +5,7 @@ function restfulresource_init() {
   $resource = restfulresource_create( 'restfulresources' );
   
   $resource->removeDefaultActions();
-  $resource->get->addAction('routes', 'routes');
+  $resource->get->addAction('routes');
   $resource->get->addAction('restfulresources', 'resources');
 }
 
