@@ -65,9 +65,56 @@ will hit this callback without an `$id`. This is a case where the action is
 unsupported for a specific context and specifying that requires a small modification:
 
     function library_rr_summary( $data, $id ) {
-      if (empty( $id ) { return RestfulResource::UNSUPPORTED; }
+      if (empty( $id ) {
+        return RestfulResource::UNSUPPORTED;
+      }
       $summary = library_get_book_summary( $id );
       return array( 'book' => array( 'summary' => $summary ) );
     }
 
+Another RESTful practice is to return a 404 Not Found when a resource is
+missing. We can easily incorporate that into this method:
 
+    function library_rr_summary( $data, $id ) {
+      if (empty( $id ) {
+        return RestfulResource::UNSUPPORTED;
+      }
+      if (library_book_exists( $id ) == false) {
+        return RestfulResource::NOT_FOUND;
+      }  
+      $summary = library_get_book_summary( $id );
+      return array( 'book' => array( 'summary' => $summary ) );
+    }
+
+Now we have a fully behaving API for getting book summaries. But there's
+one more thing we can add: suppose we don't want just anyone reading book
+summaries and we already have an authentication method. Good RESTful practice
+is to return a 401 Unauthorized and it's simple to add that in:
+
+    function library_rr_summary( $data, $id ) {
+      if (library_authorized() == false) {
+        return RestfulResource::UNAUTHORIZED;
+      }  
+      if (empty( $id ) {
+        return RestfulResource::UNSUPPORTED;
+      }
+      if (library_book_exists( $id ) == false) {
+        return RestfulResource::NOT_FOUND;
+      }  
+      $summary = library_get_book_summary( $id );
+      return array( 'book' => array( 'summary' => $summary ) );
+    }
+
+And that's pretty much the extend of it. To take advantage of the default
+actions, define these functions:
+
+    function modulename_rr_create( $data, $id );
+    function modulename_rr_read( $data, $id );
+    function modulename_rr_update( $data, $id );
+    function modulename_rr_delete( $data, $id );
+    function modulename_rr_exists( $data, $id );
+
+Where `modulename` is the name of the module where you called
+`restfulresource_create` from. You can override the guessing of the action
+callbacks by calling the create method with the optional module parameter:
+`restfulresource_create( 'books', null, 'my_module' )`.
