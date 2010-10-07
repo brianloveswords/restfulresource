@@ -15,11 +15,13 @@ class RestfulResource {
     $this->post = new HTTPPost($this);
     $this->put = new HTTPPut($this);
     $this->delete = new HTTPDelete($this);
+    $this->head = new HTTPHead($this);
     
     $this->post->addAction($resource, sprintf("%s_rr_create", $module));
     $this->get->addAction($resource, sprintf("%s_rr_read", $module));
     $this->put->addAction($resource, sprintf("%s_rr_update", $module));
     $this->delete->addAction($resource, sprintf("%s_rr_delete", $module));
+    $this->head->addAction($resource, sprintf("%s_rr_exists", $module));
     
     self::$resources[$resource] = $this;
   }
@@ -29,6 +31,7 @@ class RestfulResource {
     $this->get->removeAction($this->resource);
     $this->put->removeAction($this->resource);
     $this->delete->removeAction($this->resource);
+    $this->head->removeAction($this->resource);
     return $this;
   }
   
@@ -107,6 +110,7 @@ class RestfulResource {
       'post' => $_POST ? $_POST : $_PUT, //activeresource puts posts in puts.
       'put' => $_PUT,
       'delete' => array(),
+      'head' => array(),
     );
 
     $result = call_user_func( $callback, $data[$http_method], $id );
@@ -131,7 +135,7 @@ class RestfulResource {
       HTTPResponse::created( $result );
       // exits
     }
-    else if ( $http_method == 'put' ) {
+    else if ( $http_method == 'put' || $http_method == 'head' ) {
       HTTPResponse::ok( );
       // exits
     }
@@ -258,6 +262,7 @@ class HTTPPost extends HTTPMethod{}
 class HTTPGet extends HTTPMethod{}
 class HTTPPut extends HTTPMethod{}
 class HTTPDelete extends HTTPMethod{}
+class HTTPHead extends HTTPMethod{}
 
 class HTTPResponse {
   public function badRequest() {
