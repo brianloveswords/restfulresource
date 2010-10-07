@@ -44,12 +44,13 @@ class RestfulResource {
     $routes = array();
     foreach (self::$resources as $r) {
       $offset = 0;
-      if ($prefix) {
-        $prefix = trim( $r->prefix, '/' );
+      $prefix = trim( $r->prefix, '/' );
+      
+      if (strlen($prefix) > 0) {
         $offset = count(explode('/', $prefix));
-        $prefix .= strlen($prefix) > 0 ? '/' : '';
+        $prefix .= '/';
       }
-    
+      
       $template = array(
         'description' => 'API router',
         'page callback' => 'restfulresource_router',
@@ -76,8 +77,11 @@ class RestfulResource {
    *   the name of the resource
    * @param  path_args
    *   the extra arguments passed when calling the resource
+   * @param  phpinput
+   *   the contents of 'php://input'. it must be collected from the first
+   *   method after the request, so the pre-router passes it in 
    */
-  public static function route( $resource, $path_args ) {
+  public static function route( $resource, $path_args, $phpinput = '' ) {
     $http_method = strtolower($_SERVER['REQUEST_METHOD']);
     $rr = self::$resources[$resource];
     
@@ -96,7 +100,7 @@ class RestfulResource {
       // exits
     }
 
-    $_PUT = self::decode( $type, file_get_contents('php://input') );
+    $_PUT = self::decode( $type, $phpinput );
     
     $data = array(
       'get' => $_GET,
@@ -181,10 +185,10 @@ class RestfulResource {
     $result = $data;
     switch ($type) {
       case 'json':
-        $result = json_decode(file_get_contents('php://input'));
+        $result = json_decode($data);
         break;
       case 'txt':
-        parse_str(file_get_contents('php://input'), $result);
+        parse_str($data, $result);
         break;
     }
     return (array)$result;

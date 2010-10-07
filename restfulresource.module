@@ -28,5 +28,5 @@ function restfulresource_resources( $data, $id = null ) {
 function restfulresource_router( $resource ) {
   $args = func_get_args();
   array_shift($args);
-  return RestfulResource::route( $resource, $args );
+  return RestfulResource::route( $resource, $args, file_get_contents('php://input') );
 }
