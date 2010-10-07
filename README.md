@@ -133,3 +133,26 @@ Where `modulename` is the name of the module where you called
 `restfulresource_create` from. You can override the guessing of the action
 callbacks by calling the create method with the optional module parameter:
 `restfulresource_create( 'books', 'api/1.0', 'my_module' )`.
+
+ActiveResource Conventions
+==========================
+* When ActiveResource 3.0.0 makes a PUT or POST call, it wraps the data in a
+  container named after the singular resource. ActiveResource 2.3.x does not.
+
+* In PUTs and POSTs, data comes in the same way it goes out. So if you
+  requested .json, you will get a .json string coming in. This is handled for
+  you, but be aware of it.
+
+* ActiveResource makes a HEAD call to find out existence, so it's important to
+  write the `<module>_rr_exists` callback.
+
+* The `errors` array should be formed like so:
+    
+    errors[] = "Firstname can't be blank;
+    errors[] = "Email can't be blank;
+    errors[] = "Phone number can't be blank;
+  
+  Active resource will automatically figure out those are validation errors on
+  the `firstname`, `email` and `phone_number` fields.
+  
+  
