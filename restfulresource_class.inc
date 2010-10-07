@@ -85,7 +85,7 @@ class RestfulResource {
     $callback = $rr->$http_method->actions[$action];
     
     self::header( $type );
-    
+
     // if the callback doesn't exit, execution stops immediately.
     if (function_exists( $callback ) == false) {
       HTTPResponse::badRequest();
@@ -102,6 +102,7 @@ class RestfulResource {
     );
 
     $result = call_user_func( $callback, $data[$http_method], $id );
+    
     if ($result === self::NOT_FOUND) {
       HTTPResponse::notFound();
       // exits
