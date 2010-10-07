@@ -11,11 +11,11 @@ class RestfulResource {
     $this->resource = $resource;
     $this->prefix = $prefix;
     
-    $this->get = new HTTPGet($this);
-    $this->post = new HTTPPost($this);
-    $this->put = new HTTPPut($this);
-    $this->delete = new HTTPDelete($this);
-    $this->head = new HTTPHead($this);
+    $this->get = new HTTPGet($module);
+    $this->post = new HTTPPost($module);
+    $this->put = new HTTPPut($module);
+    $this->delete = new HTTPDelete($module);
+    $this->head = new HTTPHead($module);
     
     $this->post->addAction($resource, sprintf("%s_rr_create", $module));
     $this->get->addAction($resource, sprintf("%s_rr_read", $module));
@@ -246,13 +246,37 @@ class RestfulResource {
 }
 
 class HTTPMethod {
-  public $actions;
+  public function __construct($module) {
+    $this->module = $module;
+    $this->actions = array();
+  }
   
-  public function addAction( $action, $callback ) {
-    $this->actions[$action] = $callback;
+  /**
+   * Add a new action for this HTTP method
+   *
+   * @param  action
+   *   name of the action
+   * @param  callback <string>
+   *   string name of the callback function (partial or complete)
+   * @param expand
+   *   whether to prepend the module name to the callback (defaults to true)
+   */
+  public function addAction( $action, $callback, $expand = true ) {
+    if ($expand && $this->module) {
+      $this->actions[$action] = sprintf("%s_%s", $this->module, $callback);
+    }
+    else {
+      $this->actions[$action] = $callback;
+    }
     return $this;
   }
 
+  /**
+   * Removes an action for this HTTP method
+   *
+   * @param  action
+   *   name of the action to remove.
+   */
   public function removeAction( $action ) {
     unset($this->actions[$action]);
     return $this;
@@ -265,29 +289,58 @@ class HTTPDelete extends HTTPMethod{}
 class HTTPHead extends HTTPMethod{}
 
 class HTTPResponse {
+  /**
+   * Sets a header for 401 Bad Request and exits
+   */
   public function badRequest() {
     drupal_set_header('HTTP/1.1 400 Bad Request');
     exit;
   }
+  /**
+   * Sets a header for 404 Not Found and exits
+   */
   public function notFound() {
     drupal_set_header('HTTP/1.1 404 Not Found');
     exit;
   }
+  /**
+   * Sets a header for 200 OK, prints the body and exits
+   *
+   * @param  body
+   *   content to print in the response
+   */
   public function ok( $body ) {
     drupal_set_header('HTTP/1.1 200 OK');
     print $body;
     exit;
   }
+  /**
+   * Sets a header for 201 Created, a Location header describing where to
+   * find the new resource, and exits.
+   *
+   * @param  location
+   *   full (or relative) url where to find the new resource
+   */
   public function created( $location ) {
     drupal_set_header('HTTP/1.1 201 Created');
-    drupal_set_header(sprintf('Location: %s/%d', $location));
+    drupal_set_header(sprintf('Location: %s', $location));
     exit;
   }
+  /**
+   * Sets a header for 422 Unprocessable Entity (errors in the input) and
+   * exits.
+   *
+   * @param  body
+   *   content to print in the response. 
+   */
   public function unprocessable( $body ) {
     drupal_set_header('HTTP/1.1 422 Unprocessable Entity');
     print $body;
     exit;
   }
+  /**
+   * Sets a header for 401 Unauthorized and exits.
+   */
   public function unauthorized() {
     drupal_set_header('HTTP/1.1 401 Unauthorized');
     exit;
