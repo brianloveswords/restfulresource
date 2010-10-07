@@ -2,7 +2,8 @@
 require_once 'restfulresource_class.inc';
 
 function restfulresource_init() {
-  $resource = new RestfulResource('restfulresources', 'restfulresource');
+  $resource = restfulresource_create( 'restfulresources' );
+  
   $resource->removeDefaultActions();
   $resource->get->addAction('routes', 'restfulresource_routes');
   $resource->get->addAction('restfulresources', 'restfulresource_resources');
@@ -14,8 +15,9 @@ function restfulresource_menu() {
 
 function restfulresource_create( $resource, $prefix = '', $module = null ) {
   if (empty($module)) {
-    $caller = array_pop(debug_backtrace(false));
-    $module = trim($caller['function'], "_init");
+    $caller = debug_backtrace(false);
+    // it's going to be the second one, the first caller is this function.
+    $module = trim($caller[1]['function'], "_init");
   }
   return new RestfulResource( $resource, $prefix, $module );
 }
