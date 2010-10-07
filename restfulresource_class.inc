@@ -1,6 +1,7 @@
 <?php
 class RestfulResource {
   const UNAUTHORIZED = 'unauthorized';
+  const UNSUPPORTED = 'unsupported';
   const NOT_FOUND = 'not_found';
   
   public static $resources;
@@ -42,9 +43,12 @@ class RestfulResource {
   public static function generateMenu( ) {
     $routes = array();
     foreach (self::$resources as $r) {
-      $prefix = trim( $r->prefix, '/' );
-      $offset = substr_count($prefix, '/');
-      $prefix .= strlen($prefix) > 0 ? '/' : '';
+      $offset = 0;
+      if ($prefix) {
+        $prefix = trim( $r->prefix, '/' );
+        $offset = count(explode('/', $prefix));
+        $prefix .= strlen($prefix) > 0 ? '/' : '';
+      }
     
       $template = array(
         'description' => 'API router',
@@ -109,6 +113,10 @@ class RestfulResource {
     }
     else if ($result === self::UNAUTHORIZED) {
       HTTPResponse::unauthorized();
+      // exits
+    }
+    else if ($result === self::UNSUPPORTED) {
+      HTTPResponse::badRequest();
       // exits
     }
     else if (isset( $result['errors'] )) {
