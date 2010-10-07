@@ -2,6 +2,7 @@
 require_once "simpletest/autorun.php";
 require_once "../restfulresource_class.inc";
 require_once "../restfulresource.module";
+require_once "../../../../../includes/bootstrap.inc";
 
 class RestfulResourceTest extends UnitTestCase {
   function testShouldCreateNewRestfulResource() {
@@ -42,15 +43,6 @@ class RestfulResourceTest extends UnitTestCase {
     $this->assertNotNull($menu['api/hands.json']);
     $this->assertNotNull($menu['api/hands.txt']);
     $this->assertNotNull($menu['api/hands/%']);
-  }
-
-  function testShouldRouteToGetRead() {
-    $_SERVER['REQUEST_METHOD'] = 'GET';
-    function bagelmodule_rr_read() { return 'ok'; } 
-    $rr = new RestfulResource('bagels', 'bagelmodule');
-    
-    $response = RestfulResource::route('bagels', array('bagels.txt'));
-    $this->assertEqual($response, 'ok');
   }
 
   function testShouldParsePathArguments() {
