@@ -2,17 +2,27 @@
 require_once 'restfulresource_class.inc';
 
 function restfulresource_init() {
-  $r = new RestfulResource('restfulresources', 'restfulresource');
-  $r->removeDefaultActions();
-  $r->get->addAction('summary', 'restfulresource_summary');
+  $resource = new RestfulResource('restfulresources', 'restfulresource');
+  $resource->removeDefaultActions();
+  $resource->get->addAction('routes', 'restfulresource_routes');
+  $resource->get->addAction('restfulresources', 'restfulresource_resources');
 }
 
 function restfulresource_menu() {
   return RestfulResource::generateMenu();
 }
 
-function restfulresource_summary() {
-  return 'lookin good!';
+function restfulresource_routes() {
+  return RestfulResource::generateMenu();
+}
+
+function restfulresource_resources( $data, $id = null ) {
+  if ($id) {
+    return RestfulResource::$resources[$id];
+  }
+  else {
+    return RestfulResource::$resources;
+  }
 }
 
 function restfulresource_router( $resource ) {
