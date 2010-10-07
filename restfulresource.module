@@ -12,6 +12,20 @@ function restfulresource_menu() {
   return RestfulResource::generateMenu();
 }
 
+function restfulresource_create( $resource, $prefix = '', $module = null ) {
+  if (empty($module)) {
+    $caller = array_pop(debug_backtrace(false));
+    $module = trim($caller['function'], "_init");
+  }
+  return new RestfulResource( $resource, $prefix, $module );
+}
+
+function restfulresource_router( $resource ) {
+  $args = func_get_args();
+  array_shift($args);
+  return RestfulResource::route( $resource, $args, file_get_contents('php://input') );
+}
+
 function restfulresource_routes() {
   return RestfulResource::generateMenu();
 }
@@ -25,8 +39,3 @@ function restfulresource_resources( $data, $id = null ) {
   }
 }
 
-function restfulresource_router( $resource ) {
-  $args = func_get_args();
-  array_shift($args);
-  return RestfulResource::route( $resource, $args, file_get_contents('php://input') );
-}

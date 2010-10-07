@@ -6,7 +6,7 @@ class RestfulResource {
   
   public static $resources;
   
-  public function __construct( $resource, $module, $prefix = '' ) {
+  public function __construct( $resource, $prefix = '', $module = null ) {
     $this->module = $module;
     $this->resource = $resource;
     $this->prefix = $prefix;
