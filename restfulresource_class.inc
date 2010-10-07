@@ -123,15 +123,21 @@ class RestfulResource {
       HTTPResponse::badRequest();
       // exits
     }
-    else if (isset( $result['errors'] )) {
+    else if (is_array($result) && empty( $result['errors'] ) == false) {
       HTTPResponse::unprocessable( self::encode ($type, $result) );
       // exits
     }
-    else if ( $type == 'post' ) {
+    else if ( $http_method == 'post' ) {
       HTTPResponse::created( $result );
+      // exits
+    }
+    else if ( $http_method == 'put' ) {
+      HTTPResponse::ok( );
+      // exits
     }
     else {
       HTTPResponse::ok( self::encode($type, $result) );
+      // exits
     }
   }
   
