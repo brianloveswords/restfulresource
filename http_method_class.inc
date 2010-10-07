@@ -12,14 +12,14 @@ class HTTPMethod {
    *   name of the action
    * @param  callback <string>
    *   string name of the callback function (partial or complete)
-   * @param expand
-   *   whether to prepend the module name to the callback (defaults to true)
+   * @param full_callback
+   *   whether to prepend the module name to the callback (defaults to false)
    */
-  public function addAction( $action, $callback = null, $expand = true ) {
+  public function addAction( $action, $callback = null, $full_callback = false ) {
     if (empty( $callback )) {
       $callback = $action;
     }
-    if ($expand && $this->module) {
+    if ($full_callback == false && $this->module) {
       $this->actions[$action] = sprintf("%s_rr_%s", $this->module, $callback);
     }
     else {
