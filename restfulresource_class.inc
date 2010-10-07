@@ -4,6 +4,7 @@ class RestfulResource {
   const UNSUPPORTED = 'unsupported';
   const NOT_FOUND = 'not_found';
   
+  public 
   public static $resources;
   
   public function __construct( $resource, $prefix = '', $module = null ) {
@@ -17,11 +18,11 @@ class RestfulResource {
     $this->delete = new HTTPDelete($module);
     $this->head = new HTTPHead($module);
     
-    $this->post->addAction($resource, sprintf("%s_rr_create", $module));
-    $this->get->addAction($resource, sprintf("%s_rr_read", $module));
-    $this->put->addAction($resource, sprintf("%s_rr_update", $module));
-    $this->delete->addAction($resource, sprintf("%s_rr_delete", $module));
-    $this->head->addAction($resource, sprintf("%s_rr_exists", $module));
+    $this->post->addAction($resource, "create");
+    $this->get->addAction($resource, "read");
+    $this->put->addAction($resource, "update");
+    $this->delete->addAction($resource, "delete");
+    $this->head->addAction($resource, "exists");
     
     self::$resources[$resource] = $this;
   }
@@ -263,7 +264,7 @@ class HTTPMethod {
    */
   public function addAction( $action, $callback, $expand = true ) {
     if ($expand && $this->module) {
-      $this->actions[$action] = sprintf("%s_%s", $this->module, $callback);
+      $this->actions[$action] = sprintf("%s_rr_%s", $this->module, $callback);
     }
     else {
       $this->actions[$action] = $callback;

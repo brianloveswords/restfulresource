@@ -5,8 +5,8 @@ function restfulresource_init() {
   $resource = restfulresource_create( 'restfulresources' );
   
   $resource->removeDefaultActions();
-  $resource->get->addAction('routes', 'restfulresource_routes');
-  $resource->get->addAction('restfulresources', 'restfulresource_resources');
+  $resource->get->addAction('routes', 'routes');
+  $resource->get->addAction('restfulresources', 'resources');
 }
 
 function restfulresource_menu() {
@@ -28,11 +28,14 @@ function restfulresource_router( $resource ) {
   return RestfulResource::route( $resource, $args, file_get_contents('php://input') );
 }
 
-function restfulresource_routes() {
+/**
+ * APIS
+ */
+function restfulresource_rr_routes() {
   return RestfulResource::generateMenu();
 }
 
-function restfulresource_resources( $data, $id = null ) {
+function restfulresource_rr_resources( $data, $id = null ) {
   if ($id) {
     return RestfulResource::$resources[$id];
   }
