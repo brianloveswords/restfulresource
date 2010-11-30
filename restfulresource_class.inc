@@ -112,11 +112,13 @@ class RestfulResource {
       'get' => $_GET,
       'post' => $_POST ? $_POST : $_PUT, //activeresource puts posts in puts.
       'put' => $_PUT,
-      'delete' => array(),
-      'head' => array(),
     );
 
-    $result = call_user_func( $callback, $data[$http_method], $id );
+    if (isset($data[$http_method])){
+      $result = call_user_func( $callback, $data[$http_method], $id );
+    } else {
+      $result = call_user_func( $callback, $id );
+    }
     
     if ($result === self::NOT_FOUND) {
       HTTPResponse::notFound();
