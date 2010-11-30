@@ -7,7 +7,6 @@ class RestfulResource {
   const UNSUPPORTED = 'unsupported';
   const NOT_FOUND = 'not_found';
   
-  public 
   public static $resources;
   
   public function __construct( $resource, $prefix = '', $module = null ) {
