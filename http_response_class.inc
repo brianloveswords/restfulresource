@@ -44,9 +44,9 @@ class HTTPResponse {
    * @param  body
    *   content to print in the response. 
    */
-  public function unprocessable( $body ) {
+  public function unprocessable( $body = null ) {
     drupal_set_header('HTTP/1.1 422 Unprocessable Entity');
-    print $body;
+    if (!empty($body)) { print $body; }
     exit;
   }
   /**
