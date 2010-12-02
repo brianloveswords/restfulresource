@@ -20,9 +20,9 @@ class HTTPResponse {
    * @param  body
    *   content to print in the response
    */
-  public function ok( $body ) {
+  public function ok( $body = null ) {
     drupal_set_header('HTTP/1.1 200 OK');
-    print $body;
+    if (!empty($body)) { print $body; }
     exit;
   }
   /**
